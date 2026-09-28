@@ -1,67 +1,225 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
+
 <head>
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Geolocation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Weather API</title>
+
+    <style>
+        :root {
+            --bg-from: #dbeafe;
+            --bg-to: #e0e7ff;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --line: #e2e8f0;
+            --accent: #3b82f6;
+            --accent-dark: #2563eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 16px;
+            color: var(--text);
+            background: linear-gradient(135deg, var(--bg-from), var(--bg-to));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            text-align: center;
+            padding: 24px 20px 20px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        .identitas {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .body {
+            padding: 20px 25px 25px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f8fafc;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .suhu-besar {
+            text-align: center;
+            background: #eff6ff;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+
+        .suhu-besar .angka {
+            font-size: 40px;
+            font-weight: bold;
+            color: var(--accent-dark);
+        }
+
+        .suhu-besar .keterangan {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .data {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 4px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .data:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .value {
+            font-weight: 500;
+            text-align: right;
+        }
+    </style>
 </head>
 
 <body>
-    <h3> Nama : Jundi Al-Faruq Reksowardoyo</h3>
-    <h3> NIM : 20240140100</h3>
 
+    <div class="container">
 
-    
-    <p>
-        Kota : 
-        <span id="lokasi"></span> 
+        <div class="header">
+            <h1>🌤️ Weather App</h1>
+            <div class="identitas">
+                <div>Nama : Jundi Al-Faruq Reksowardoyo</div>
+                <div>NIM : 20240140100</div>
+            </div>
+        </div>
 
-    </p>
+        <div class="body">
 
-    <p>
-    Lokasi :
-    <select id="pilihLokasi">
-        <option value="jakarta">Jakarta</option>
-        <option value="yogyakarta">Yogyakarta</option>
-        <option value="bandung">Bandung</option>
-        <option value="surabaya">Surabaya</option>
-    </select>
-    </p>
+            <select id="pilihLokasi">
+                <option value="jakarta">Jakarta</option>
+                <option value="yogyakarta">Yogyakarta</option>
+                <option value="bandung">Bandung</option>
+                <option value="surabaya">Surabaya</option>
+            </select>
 
-    <hr>
+            <div class="suhu-besar">
+                <div class="angka" id="suhu">-</div>
+                <div class="keterangan">Suhu saat ini</div>
+            </div>
 
-    <p>
-        Koordinat :
-        <span id="negara"></span>    
-    </p>
+            <div class="data">
+                <span class="label">📍 Lokasi</span>
+                <span class="value" id="lokasi">-</span>
+            </div>
+
+            <div class="data">
+                <span class="label">🌏 Negara</span>
+                <span class="value" id="negara">-</span>
+            </div>
+
+            <div class="data">
+                <span class="label">🏙️ Provinsi</span>
+                <span class="value" id="provinsi">-</span>
+            </div>
+
+            <div class="data">
+                <span class="label">🏘️ Kecamatan</span>
+                <span class="value" id="kecamatan">-</span>
+            </div>
+
+            <div class="data">
+                <span class="label">🧭 Longitude</span>
+                <span class="value" id="longitude">-</span>
+            </div>
+
+            <div class="data">
+                <span class="label">🧭 Latitude</span>
+                <span class="value" id="latitude">-</span>
+            </div>
+
+        </div>
+
+    </div>
 
     <script>
+
         const pilihLokasi = document.getElementById("pilihLokasi");
 
         function ambilLokasi(kota) {
+
             fetch(`/api/lokasi?kota=${kota}`)
                 .then(response => response.json())
                 .then(data => {
-                    
+
                     console.log(data);
 
                     document.getElementById("lokasi").innerHTML = data.kota;
-
-                    document.getElementById("negara").innerHTML = data.kordinat;
+                    document.getElementById("negara").innerHTML = data.negara;
+                    document.getElementById("provinsi").innerHTML = data.provinsi;
+                    document.getElementById("kecamatan").innerHTML = data.kecamatan;
+                    document.getElementById("suhu").innerHTML = data.suhu;
+                    document.getElementById("longitude").innerHTML = data.longitude;
+                    document.getElementById("latitude").innerHTML = data.latitude;
 
                 })
-            .catch(error => {
+                .catch(error => {
+                    console.error(error);
+                });
+        }
 
-                console.error(error);
+        ambilLokasi(pilihLokasi.value);
 
-            });
-}
-ambilLokasi(pilihLokasi.value);
+        pilihLokasi.addEventListener("change", function () {
+            ambilLokasi(this.value);
+        });
 
-pilihLokasi.addEventListener("change", function() {
-    ambilLokasi(this.value);
-});
     </script>
 
 </body>
+
 </html>
