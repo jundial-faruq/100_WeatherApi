@@ -16,17 +16,34 @@ app.get('/api/lokasi', async (req, res) => {
 
     try {
         const response = await axios.get(url);
-
         const data = response.data;
 
-        const lokasi =  data.features[0].matching_text;
-        const kordinat = data.features[0].geometry.coordinates;
+        const feature = data.features[0];
 
-        res.json({ 
+        const lokasi = feature.matching_text || feature.text;
+        const kordinat = feature.geometry.coordinates;
+
+        const context = feature.context || [];
+
+        const negara =
+            context.find(item => item.id.startsWith("country"))?.text || "-";
+
+        const provinsi =
+            context.find(item => item.id.startsWith("region"))?.text || "-";
+
+        const kecamatan =
+            context.find(item => item.id.startsWith("district"))?.text || "-";
+
+        res.json({
             kota: lokasi,
-            kordinat: kordinat
+            negara: negara,
+            provinsi: provinsi,
+            kecamatan: kecamatan,
+            longitude: kordinat[0],
+            latitude: kordinat[1],
+            suhu: "Data suhu belum tersedia"
         });
-        
+
     } catch (error) {
         console.error(error.message);
 
@@ -37,5 +54,5 @@ app.get('/api/lokasi', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server berjalan di  http://localhost:${PORT}`);
+    console.log(`Server berjalan di http://localhost:${PORT}`);
 });
