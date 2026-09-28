@@ -10,9 +10,22 @@
     <h3> Nama : Jundi Al-Faruq Reksowardoyo</h3>
     <h3> NIM : 20240140100</h3>
 
+
+    
     <p>
         Kota : 
         <span id="lokasi"></span> 
+
+    </p>
+
+    <p>
+    Lokasi :
+    <select id="pilihLokasi">
+        <option value="jakarta">Jakarta</option>
+        <option value="yogyakarta">Yogyakarta</option>
+        <option value="bandung">Bandung</option>
+        <option value="surabaya">Surabaya</option>
+    </select>
     </p>
 
     <hr>
@@ -23,22 +36,31 @@
     </p>
 
     <script>
-        fetch("/api/lokasi")
-            .then(response => response.json())
-            .then(data => {
-                
-                console.log(data);
+        const pilihLokasi = document.getElementById("pilihLokasi");
 
-                document.getElementById("lokasi").innerHTML = data.kota;
+        function ambilLokasi(kota) {
+            fetch(`/api/lokasi?kota=${kota}`)
+                .then(response => response.json())
+                .then(data => {
+                    
+                    console.log(data);
 
-                document.getElementById("negara").innerHTML = data.kordinat;
+                    document.getElementById("lokasi").innerHTML = data.kota;
 
-            })
+                    document.getElementById("negara").innerHTML = data.kordinat;
+
+                })
             .catch(error => {
 
                 console.error(error);
 
             });
+}
+ambilLokasi(pilihLokasi.value);
+
+pilihLokasi.addEventListener("change", function() {
+    ambilLokasi(this.value);
+});
     </script>
 
 </body>
